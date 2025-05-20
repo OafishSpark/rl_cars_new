@@ -22,7 +22,7 @@ def train():
         device=device
     )
 
-    model.learn(total_timesteps=3_000_000, progress_bar=True)
+    model.learn(total_timesteps=3_000_0, progress_bar=True)
     model.save("ppo_overtake")
 
 train()

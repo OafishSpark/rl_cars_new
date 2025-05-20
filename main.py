@@ -92,4 +92,4 @@ def run_simulation(use_ai=False):
 
     pygame.quit()
 
-run_simulation(use_ai=True)
+run_simulation(use_ai=False)

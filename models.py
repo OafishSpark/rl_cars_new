@@ -12,7 +12,7 @@ class Vehicle:
         self.max_speed = max_speed * np.random.uniform(0.8, 1.2)
 
         if direction == 1:
-            self.x = start_road_x + np.random.randint(0, road_length // 2)
+            self.x = start_road_x + np.random.randint(200, road_length // 2)
         else:
             self.x = start_road_x + road_length - np.random.randint(0, road_length // 2)
 
@@ -28,28 +28,35 @@ class Vehicle:
         self.if_collapsed = False
 
     def collision_cars(self, vehicles):
-        collision_cars = []
         for v in vehicles:
-            self.rect.colliderect(v.rect)
-            collision_cars.append(v)
-            v.if_collapsed = True
-        if collision_cars:
-            self.if_collapsed == True
-        return collision_cars
+            if v != self:
+                if self.rect.colliderect(v.rect):
+                    self.if_collapsed == True
+                    v.if_collapsed = True
+
+            
 
     def update(self, dt, vehicles):
         front_vehicle = self.find_front_vehicle(vehicles)
-        if front_vehicle and (front_vehicle.x - self.x) and (self.lane == front_vehicle.lane) < safe_distance:
-            self.target_speed = front_vehicle.speed
-        else:
-            self.target_speed = self.max_speed
-        if not self.if_collapsed:
-            self.speed += (self.target_speed - self.speed) * dt
-        else:
+        # if front_vehicle and (front_vehicle.x - self.x) and (self.lane == front_vehicle.lane) < safe_distance:
+        #     self.target_speed = front_vehicle.speed
+        # else:
+        #     self.target_speed = self.max_speed
+
+        # self.speed += (self.target_speed - self.speed) * dt
+        if self.if_collapsed:
             self.speed = 0
         self.x += self.speed * self.direction * dt
-        self.collision_cars(vehicles)
+        
+        self.rect = pygame.rect.Rect(
+            self.x - self.length // 2,
+            self.y - self.width // 2,
+            self.length,
+            self.width
+        )
 
+        self.collision_cars(vehicles)
+        
 
     def find_front_vehicle(self, vehicles):
         closest = None
@@ -65,7 +72,7 @@ class Vehicle:
 class EgoVehicle(Vehicle):
     def __init__(self):
         super().__init__(lane=0, direction=1)
-        self.speed = max_speed * 3.0
+        self.speed = max_speed * 6.0
         self.max_lane_change_speed = 2.0 * pix_per_metr
         self.max_speed = max_speed * 4.0
         self.x = start_road_x + 50
