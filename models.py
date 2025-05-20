@@ -1,4 +1,5 @@
 import numpy as np
+import pygame
 from utils import *
 
 class Vehicle:
@@ -18,9 +19,16 @@ class Vehicle:
         self.y = start_road_y + lane * lane_width + lane_width // 2
         self.target_speed = self.max_speed
 
+        self.rect = pygame.rect.Rect(
+            self.x - self.length // 2,
+            self.y - self.width // 2,
+            self.length,
+            self.width
+        )
+
     def update(self, dt, vehicles):
         front_vehicle = self.find_front_vehicle(vehicles)
-        if front_vehicle and (front_vehicle.x - self.x) < safe_distance:
+        if front_vehicle and (front_vehicle.x - self.x) and (self.lane == front_vehicle.lane) < safe_distance:
             self.target_speed = front_vehicle.speed
         else:
             self.target_speed = self.max_speed
