@@ -4,6 +4,8 @@ from utils import *
 from overtake_env import OvertakeEnv
 from stable_baselines3 import PPO
 
+device = 'cpu'
+
 def run_simulation(use_ai=False):
     pygame.init()
     screen_width = 1600
@@ -12,7 +14,7 @@ def run_simulation(use_ai=False):
     clock = pygame.time.Clock()
 
     env = OvertakeEnv()
-    model = PPO.load("ppo_overtake") if use_ai else None
+    model = PPO.load("ppo_overtake", device = 'cpu') if use_ai else None
 
     # Инициализация камеры
     camera_offset_x = 0
@@ -66,10 +68,10 @@ def run_simulation(use_ai=False):
         pygame.draw.rect(
             screen, AI_CAR_COLOR,
             (
-                env.ego.x - env.ego.length // 2 + int(camera_offset_x),
-                env.ego.y - env.ego.width // 2 + int(camera_offset_y),
-                env.ego.length,
-                env.ego.width
+                int(env.ego.x - env.ego.length // 2 + int(camera_offset_x)),
+                int(env.ego.y - env.ego.width // 2 + int(camera_offset_y)),
+                int(env.ego.length),
+                int(env.ego.width)
             )
         )
 
