@@ -25,6 +25,17 @@ class Vehicle:
             self.length,
             self.width
         )
+        self.if_collapsed = False
+
+    def collision_cars(self, vehicles):
+        collision_cars = []
+        for v in vehicles:
+            self.rect.colliderect(v.rect)
+            collision_cars.append(v)
+            v.if_collapsed = True
+        if collision_cars:
+            self.if_collapsed == True
+        return collision_cars
 
     def update(self, dt, vehicles):
         front_vehicle = self.find_front_vehicle(vehicles)
@@ -32,9 +43,13 @@ class Vehicle:
             self.target_speed = front_vehicle.speed
         else:
             self.target_speed = self.max_speed
-
-        self.speed += (self.target_speed - self.speed) * dt
+        if not self.if_collapsed:
+            self.speed += (self.target_speed - self.speed) * dt
+        else:
+            self.speed = 0
         self.x += self.speed * self.direction * dt
+        self.collision_cars(vehicles)
+
 
     def find_front_vehicle(self, vehicles):
         closest = None
