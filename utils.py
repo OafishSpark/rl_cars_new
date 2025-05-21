@@ -7,10 +7,12 @@ start_road_x = 4 * pix_per_metr
 start_road_y = 4 * pix_per_metr
 max_speed = 1.5 * pix_per_metr
 safe_distance = 2 * pix_per_metr
-observation_radius = 500 * pix_per_metr
+observation_radius = 250 * pix_per_metr
 max_visible_vehicles = 3
 
-screen_width, screen_height = 1200, 600
+npc_proba = 0.8
+
+screen_width, screen_height = 1600, 800
 
 # Размеры и позиция окошка
 window_width, window_height = 200, 80  # Ширина и высота

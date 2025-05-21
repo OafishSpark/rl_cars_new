@@ -11,7 +11,6 @@ class Vehicle:
         self.lane = lane    # координата по y (дискретная)
         self.direction = direction  # в какую сторону движется (-1/1)
         self.speed = speed  # скорость по x
-        self.max_speed = max_speed * np.random.uniform(0.8, 1.2)
         self.y = start_road_y + lane * lane_width + lane_width // 2 # координата по y (на сетке)
 
         self.rect = pygame.rect.Rect(

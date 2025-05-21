@@ -4,6 +4,7 @@ from models import *
 from utils import *
 
 class OvertakeEnv(gym.Env):
+    npc_vehicles = []
     def __init__(self):
         super().__init__()
         self.action_space = gym.spaces.Box(
@@ -18,24 +19,22 @@ class OvertakeEnv(gym.Env):
             dtype=np.float32
         )
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(3)
+        self._generate_npc(3)
 
     def _generate_npc(self, count):
-        npc_list = []
         for _ in range(count):
-            lane = np.random.randint(0, num_lanes)
-            direction = 1
+            direction = np.random.choice([-1, 1])
+            lane = 0 if direction > 0 else 1
             speed = max_speed * np.random.uniform(0.5, 0.7)
-            x_start = start_road_x + np.random.randint(200, 1500)
+            x_start = self.ego.x + direction * np.random.randint(observation_radius - 500, observation_radius + 500)
             vehicle = Vehicle(x_start, lane, speed, direction)
-            npc_list.append(vehicle)
-        return npc_list
+            self.npc_vehicles.append(vehicle)
 
     def reset(self, seed=None, options=None):
         self.close()
         super().reset(seed=seed)
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(6)
+        self._generate_npc(6)
         return self._get_obs(), {}
 
     def _get_obs(self):
@@ -99,6 +98,11 @@ class OvertakeEnv(gym.Env):
                 self.npc_vehicles.remove(v)
                 del v
                 print('deleted')
+
+        # с ненулевой вероятностью генерируем неписей
+        if np.random.random() > npc_proba:
+            self._generate_npc(1)
+        
 
         reward = progress_reward + speed_bonus + overtake_bonus + collision_penalty + lane_change_penalty
         done = collision_penalty < 0 or self.ego.x > road_length * 0.9
