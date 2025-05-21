@@ -3,6 +3,7 @@ import numpy as np
 from models import *
 from utils import *
 
+
 class OvertakeEnv(gym.Env):
     npc_vehicles = []
     def __init__(self):
@@ -26,8 +27,18 @@ class OvertakeEnv(gym.Env):
             direction = np.random.choice([-1, 1])
             lane = 1 if direction > 0 else 0
             speed = max_speed * 2
-            x_start = self.ego.x + np.random.choice([-1, 1]) * np.random.randint(observation_radius - gen_radius, observation_radius + gen_radius)
-            vehicle = Vehicle(x_start, lane, speed, direction)
+
+            # Выбор типа NPC
+            npc_type = np.random.choice([
+                Norman, Grandma, M_U_D_A_K,
+                Gambler, Marshrutka, Truck
+            ], p=[0.3, 0.2, 0.1, 0.05, 0.2, 0.15])
+
+            x_start = self.ego.x + np.random.choice([-1, 1]) * np.random.randint(
+                observation_radius - gen_radius,
+                observation_radius + gen_radius
+            )
+            vehicle = npc_type(x_start, lane, speed, direction)
             self.npc_vehicles.append(vehicle)
 
     def reset(self, seed=None, options=None):
@@ -72,24 +83,24 @@ class OvertakeEnv(gym.Env):
         for v in self.npc_vehicles:
             v.update(0.1, self.npc_vehicles + [self.ego])
 
-        #награды
+        # награды
         progress_reward = 0.5 * (self.ego.x - prev_x) / pix_per_metr
         speed_bonus = 0.1 * (self.ego.speed / self.ego.max_speed)
         collision_penalty = 0
         if any(
-            self.ego.rect.colliderect(v.rect)
-            for v in self.npc_vehicles
+                self.ego.rect.colliderect(v.rect)
+                for v in self.npc_vehicles
         ):
             collision_penalty = -2000
             self.reset()
 
-        #штраф за перестроение и награда за обгон
+        # штраф за перестроение и награда за обгон
         lane_change_penalty = -1.0 if self.ego.lane != prev_lane else 0.0
         overtake_bonus = 0.0
         for v in self.npc_vehicles:
-            if (self.ego.x > v.x + v.length and 
-                abs(v.y - self.ego.y) < lane_width and 
-                self.ego.lane != v.lane):
+            if (self.ego.x > v.x + v.length and
+                    abs(v.y - self.ego.y) < lane_width and
+                    self.ego.lane != v.lane):
                 overtake_bonus += 15.0
 
         # удаляем неписей, которые за 500м до и после экрана
@@ -102,7 +113,6 @@ class OvertakeEnv(gym.Env):
         # с ненулевой вероятностью генерируем неписей
         if np.random.random() > npc_proba:
             self._generate_npc(1)
-        
 
         reward = progress_reward + speed_bonus + overtake_bonus + collision_penalty + lane_change_penalty
         done = collision_penalty < 0 or self.ego.x > road_length * 0.9

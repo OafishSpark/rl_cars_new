@@ -80,7 +80,7 @@ def run_simulation(use_ai=False):
         # NPC
         for v in env.npc_vehicles:
             pygame.draw.rect(
-                screen, NPC_CAR_COLOR,
+                screen, v.color,
                 (
                     v.x - v.length // 2 + int(camera_offset_x),
                     v.y - v.width // 2 + int(camera_offset_y),
@@ -96,7 +96,6 @@ def run_simulation(use_ai=False):
             f'Скросость: {env.ego.speed}',
             f'Очки: {score:.2f}',
         ]
-        # Рендерим каждую строку текста
         rendered_lines = []
         for line in text_lines:
             rendered_lines.append(font.render(line, True, TEXT_COLOR))
@@ -106,7 +105,6 @@ def run_simulation(use_ai=False):
             (window_x, window_y, window_width, window_height),
             border_radius=8
         )
-        # 2. Рисуем рамку (опционально)
         pygame.draw.rect(
             screen,
             BORDER_COLOR,
@@ -114,7 +112,6 @@ def run_simulation(use_ai=False):
             2,
             border_radius=8
         )
-        # 3. Выводим текст построчно
         for i, line in enumerate(rendered_lines):
             screen.blit(
                 line,

@@ -16,7 +16,7 @@ def train():
         batch_size=512,
         n_epochs=50,
         gamma=0.999,
-        ent_coef=0.1,  # Увеличено для исследования
+        ent_coef=0.1,
         clip_range=0.2,
         verbose=1,
         device=device
