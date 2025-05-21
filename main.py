@@ -4,12 +4,9 @@ from utils import *
 from overtake_env import OvertakeEnv
 from stable_baselines3 import PPO
 
-device = 'cpu'
 
 def run_simulation(use_ai=False):
     pygame.init()
-    screen_width = 1600
-    screen_height = 900
     screen = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
 
@@ -19,6 +16,8 @@ def run_simulation(use_ai=False):
     # Инициализация камеры
     camera_offset_x = 0
     camera_offset_y = 0
+
+    score = 0
 
     running = True
     while running:
@@ -43,13 +42,16 @@ def run_simulation(use_ai=False):
             ]
 
         obs, reward, done, _, _ = env.step(action)
+        score += reward
+        if done:
+            running = False
 
         # Отрисовка
         screen.fill((255, 255, 255))
         pygame.draw.rect(
             screen, ROAD_COLOR,
             (
-                start_road_x + int(camera_offset_x),
+                0,
                 start_road_y + int(camera_offset_y),
                 road_length,
                 road_width
@@ -59,7 +61,7 @@ def run_simulation(use_ai=False):
         for i in range(1, num_lanes):
             pygame.draw.line(
                 screen, LANE_COLOR,
-                (start_road_x + int(camera_offset_x), start_road_y + i * lane_width + int(camera_offset_y)),
+                (0, start_road_y + i * lane_width + int(camera_offset_y)),
                 (start_road_x + road_length + int(camera_offset_x), start_road_y + i * lane_width + int(camera_offset_y)),
                 3
             )
@@ -87,8 +89,37 @@ def run_simulation(use_ai=False):
                 )
             )
 
+        pygame.display.set_caption("Показатели")
+        font = pygame.font.Font(None, 24)  # Шрифт (None = стандартный)
+        text_lines = [
+            f'Скросость: {env.ego.speed}',
+            f'Очки: {score:.2f}',
+        ]
+        # Рендерим каждую строку текста
+        rendered_lines = []
+        for line in text_lines:
+            rendered_lines.append(font.render(line, True, TEXT_COLOR))
+        pygame.draw.rect(
+            screen,
+            BACKGROUND_COLOR,
+            (window_x, window_y, window_width, window_height)
+        )
+        # 2. Рисуем рамку (опционально)
+        pygame.draw.rect(
+            screen,
+            BORDER_COLOR,
+            (window_x, window_y, window_width, window_height),
+            2  # Толщина рамки
+        )
+        # 3. Выводим текст построчно
+        for i, line in enumerate(rendered_lines):
+            screen.blit(
+                line,
+                (window_x + 10, window_y + 10 + i * 25)  # Отступы внутри окошка
+            )
+
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(30)
 
     pygame.quit()
 
