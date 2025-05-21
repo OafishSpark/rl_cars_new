@@ -56,7 +56,7 @@ class Vehicle:
 
 class EgoVehicle(Vehicle):
     def __init__(self):
-        super().__init__(start_road_x + 50, lane=0, speed=max_speed * 6.0, direction=1)
+        super().__init__(start_road_x + 50, lane=1, speed=max_speed * 6.0, direction=1)
         self.max_lane_change_speed = 2.0 * pix_per_metr
         self.max_speed = max_speed * 4.0
         self.acceleration = 2.0 * pix_per_metr

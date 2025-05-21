@@ -1,4 +1,4 @@
-pix_per_metr = 20
+pix_per_metr = 4
 road_length = 1000 * pix_per_metr
 road_width = 10 * pix_per_metr
 num_lanes = 2
@@ -10,7 +10,8 @@ safe_distance = 2 * pix_per_metr
 observation_radius = 250 * pix_per_metr
 max_visible_vehicles = 3
 
-npc_proba = 0.8
+npc_proba = 0.9
+gen_radius = 100 * pix_per_metr
 
 screen_width, screen_height = 1600, 800
 

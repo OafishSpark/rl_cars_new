@@ -24,9 +24,9 @@ class OvertakeEnv(gym.Env):
     def _generate_npc(self, count):
         for _ in range(count):
             direction = np.random.choice([-1, 1])
-            lane = 0 if direction > 0 else 1
-            speed = max_speed * np.random.uniform(0.5, 0.7)
-            x_start = self.ego.x + direction * np.random.randint(observation_radius - 500, observation_radius + 500)
+            lane = 1 if direction > 0 else 0
+            speed = max_speed * 2
+            x_start = self.ego.x + np.random.choice([-1, 1]) * np.random.randint(observation_radius - gen_radius, observation_radius + gen_radius)
             vehicle = Vehicle(x_start, lane, speed, direction)
             self.npc_vehicles.append(vehicle)
 
