@@ -89,7 +89,8 @@ def run_simulation(use_ai=False):
                 )
             )
 
-        pygame.display.set_caption("Показатели")
+        # Окошко с текстом
+        pygame.display.set_caption("врум-врум")
         font = pygame.font.Font(None, 24)  # Шрифт (None = стандартный)
         text_lines = [
             f'Скросость: {env.ego.speed}',
@@ -102,14 +103,16 @@ def run_simulation(use_ai=False):
         pygame.draw.rect(
             screen,
             BACKGROUND_COLOR,
-            (window_x, window_y, window_width, window_height)
+            (window_x, window_y, window_width, window_height),
+            border_radius=8
         )
         # 2. Рисуем рамку (опционально)
         pygame.draw.rect(
             screen,
             BORDER_COLOR,
             (window_x, window_y, window_width, window_height),
-            2  # Толщина рамки
+            2,
+            border_radius=8
         )
         # 3. Выводим текст построчно
         for i, line in enumerate(rendered_lines):

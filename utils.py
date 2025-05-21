@@ -1,7 +1,7 @@
 pix_per_metr = 20
 road_length = 1000 * pix_per_metr
 road_width = 10 * pix_per_metr
-num_lanes = 2
+num_lanes = 4
 lane_width = road_width // num_lanes
 start_road_x = 4 * pix_per_metr
 start_road_y = 4 * pix_per_metr

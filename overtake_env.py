@@ -18,15 +18,16 @@ class OvertakeEnv(gym.Env):
             dtype=np.float32
         )
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(1)
+        self.npc_vehicles = self._generate_npc(6)
 
     def _generate_npc(self, count):
         npc_list = []
         for _ in range(count):
             lane = np.random.randint(0, num_lanes)
             direction = 1
-            vehicle = Vehicle(lane, direction)
-            vehicle.speed = vehicle.max_speed * np.random.uniform(0.5, 0.7)
+            speed = max_speed * np.random.uniform(0.5, 0.7)
+            x_start = start_road_x + np.random.randint(200, road_length // 2)
+            vehicle = Vehicle(x_start, lane, speed, direction)
             npc_list.append(vehicle)
         return npc_list
 
@@ -80,7 +81,7 @@ class OvertakeEnv(gym.Env):
             self.ego.rect.colliderect(v.rect)
             for v in self.npc_vehicles
         ):
-            collision_penalty = -20
+            collision_penalty = -2000
             self.reset()
 
         #штраф за перестроение и награда за обгон
