@@ -10,7 +10,7 @@ safe_distance = 2 * pix_per_metr
 observation_radius = 500 * pix_per_metr
 max_visible_vehicles = 3
 spawnrate = 0.75 # вер. спавна
-npc_quantity = 20 #колличество npc
+npc_quantity = 6  #колличество npc
 screen_width, screen_height = 1200, 600
 
 # Размеры и позиция окошка

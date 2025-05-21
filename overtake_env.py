@@ -18,7 +18,7 @@ class OvertakeEnv(gym.Env):
             dtype=np.float32
         )
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(6)
+        self.npc_vehicles = self._generate_npc(npc_quantity)
 
     def _generate_npc(self, count):
         npc_list = []
@@ -26,12 +26,19 @@ class OvertakeEnv(gym.Env):
             if np.random.rand() > spawnrate:
                 continue
             lane = np.random.randint(0, num_lanes)
-            direction = 1
+            direction = np.random.choice([-1, 1])
             speed = max_speed * np.random.uniform(0.5, 0.7)
-            x_start = (start_road_x + np.random.randint(200, road_length // 2)
-                       if direction ==1
-                       else road_length - np.random.randint(200, road_length // 2)
-                       )
+
+            if direction == 1:
+                x_start = self.ego.x + observation_radius
+            else:
+                x_start = self.ego.x - observation_radius
+
+            x_start = np.clip(x_start, start_road_x - 300, road_length )
+
+            if direction == 1 and abs(x_start - self.ego.x) < 10 * safe_distance:
+                continue
+
             vehicle = Vehicle(x_start, lane, speed, direction)
             npc_list.append(vehicle)
         return npc_list
@@ -75,11 +82,18 @@ class OvertakeEnv(gym.Env):
 
         self.ego.apply_action(action)
         self.ego.update(0.1, self.npc_vehicles + [self.ego])
+
+        new_npc = []
         for v in self.npc_vehicles:
             v.update(0.1, self.npc_vehicles + [self.ego])
+            if not v.offscreen(self.ego.x):
+                new_npc.append(v)
+        self.npc_vehicles = new_npc
 
         if len (self.npc_vehicles) < npc_quantity  and np.random.rand() <0.1:
-            self.npc_vehicles.extend(self._generate_npc(1))
+            new_npc = self._generate_npc(2)
+            self.npc_vehicles.extend(new_npc)
+
         #награды
         progress_reward = 0.5 * (self.ego.x - prev_x) / pix_per_metr
         speed_bonus = 0.1 * (self.ego.speed / self.ego.max_speed)

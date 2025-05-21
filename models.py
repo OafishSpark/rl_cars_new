@@ -43,9 +43,8 @@ class Vehicle:
 
         self.collision_cars(vehicles)
 
-    def offscreen(self):
-        return (self.x < -self.length * 2) or (self.x < road_length + self.length * 2)
-
+    def offscreen(self, ego_x):
+        return abs(self.x - ego_x) > observation_radius
 
 class EgoVehicle(Vehicle):
     def __init__(self):
