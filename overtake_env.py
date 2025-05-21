@@ -18,7 +18,7 @@ class OvertakeEnv(gym.Env):
             dtype=np.float32
         )
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(6)
+        self.npc_vehicles = self._generate_npc(3)
 
     def _generate_npc(self, count):
         npc_list = []
@@ -26,7 +26,7 @@ class OvertakeEnv(gym.Env):
             lane = np.random.randint(0, num_lanes)
             direction = 1
             speed = max_speed * np.random.uniform(0.5, 0.7)
-            x_start = start_road_x + np.random.randint(200, road_length // 2)
+            x_start = start_road_x + np.random.randint(200, 1500)
             vehicle = Vehicle(x_start, lane, speed, direction)
             npc_list.append(vehicle)
         return npc_list
@@ -92,6 +92,13 @@ class OvertakeEnv(gym.Env):
                 abs(v.y - self.ego.y) < lane_width and 
                 self.ego.lane != v.lane):
                 overtake_bonus += 15.0
+
+        # удаляем неписей, которые за 500м до и после экрана
+        for v in self.npc_vehicles:
+            if abs(self.ego.x - v.x) > observation_radius:
+                self.npc_vehicles.remove(v)
+                del v
+                print('deleted')
 
         reward = progress_reward + speed_bonus + overtake_bonus + collision_penalty + lane_change_penalty
         done = collision_penalty < 0 or self.ego.x > road_length * 0.9
