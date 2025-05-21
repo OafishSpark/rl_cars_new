@@ -16,13 +16,13 @@ def train():
         batch_size=512,
         n_epochs=50,
         gamma=0.999,
-        ent_coef=0.1,  # Увеличено для исследования
+        ent_coef=0.1,
         clip_range=0.2,
         verbose=1,
         device=device
     )
 
-    model.learn(total_timesteps=3_000_000, progress_bar=True)
+    model.learn(total_timesteps=3_000_0, progress_bar=True)
     model.save("ppo_overtake")
 
 train()

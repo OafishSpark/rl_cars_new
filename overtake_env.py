@@ -23,17 +23,24 @@ class OvertakeEnv(gym.Env):
     def _generate_npc(self, count):
         npc_list = []
         for _ in range(count):
+            if np.random.rand() > spawnrate:
+                continue
             lane = np.random.randint(0, num_lanes)
             direction = 1
-            vehicle = Vehicle(lane, direction)
-            vehicle.speed = vehicle.max_speed * np.random.uniform(0.5, 0.7)
+            speed = max_speed * np.random.uniform(0.5, 0.7)
+            x_start = (start_road_x + np.random.randint(200, road_length // 2)
+                       if direction ==1
+                       else road_length - np.random.randint(200, road_length // 2)
+                       )
+            vehicle = Vehicle(x_start, lane, speed, direction)
             npc_list.append(vehicle)
         return npc_list
 
     def reset(self, seed=None, options=None):
+        self.close()
         super().reset(seed=seed)
         self.ego = EgoVehicle()
-        self.npc_vehicles = self._generate_npc(6)
+        self.npc_vehicles = self._generate_npc(npc_quantity)
         return self._get_obs(), {}
 
     def _get_obs(self):
@@ -71,14 +78,18 @@ class OvertakeEnv(gym.Env):
         for v in self.npc_vehicles:
             v.update(0.1, self.npc_vehicles + [self.ego])
 
+        if len (self.npc_vehicles) < npc_quantity  and np.random.rand() <0.1:
+            self.npc_vehicles.extend(self._generate_npc(1))
         #награды
         progress_reward = 0.5 * (self.ego.x - prev_x) / pix_per_metr
         speed_bonus = 0.1 * (self.ego.speed / self.ego.max_speed)
-        collision_penalty = -20.0 if any(
-            abs(v.x - self.ego.x) < (self.ego.length + v.length) / 2 and
-            abs(v.y - self.ego.y) < (self.ego.width + v.width) / 2
+        collision_penalty = 0
+        if any(
+            self.ego.rect.colliderect(v.rect)
             for v in self.npc_vehicles
-        ) else 0.0
+        ):
+            collision_penalty = -2000
+            self.reset()
 
         #штраф за перестроение и награда за обгон
         lane_change_penalty = -1.0 if self.ego.lane != prev_lane else 0.0
