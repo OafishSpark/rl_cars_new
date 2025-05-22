@@ -20,6 +20,8 @@ def run_simulation(use_ai=False):
     score = 0
 
     running = True
+    done = False
+
     while running:
         # Плавное движение камеры
         target_offset_x = screen_width // 2 - int(env.ego.x)
@@ -30,6 +32,9 @@ def run_simulation(use_ai=False):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+        if done:
+            continue
 
         if use_ai:
             obs = env._get_obs()
@@ -43,8 +48,6 @@ def run_simulation(use_ai=False):
 
         obs, reward, done, _, _ = env.step(action)
         score += reward
-        if done:
-            running = False
 
         # Отрисовка
         screen.fill((255, 255, 255))
@@ -62,7 +65,7 @@ def run_simulation(use_ai=False):
             pygame.draw.line(
                 screen, LANE_COLOR,
                 (0, start_road_y + i * lane_width + int(camera_offset_y)),
-                (start_road_x + road_length + int(camera_offset_x), start_road_y + i * lane_width + int(camera_offset_y)),
+                (road_length, start_road_y + i * lane_width + int(camera_offset_y)),
                 3
             )
 
@@ -79,14 +82,14 @@ def run_simulation(use_ai=False):
 
         # NPC
         for v in env.npc_vehicles:
+            temp_rect = pygame.rect.Rect(
+                v.x - v.length // 2 + int(camera_offset_x),
+                v.y - v.width // 2 + int(camera_offset_y),
+                v.length,
+                v.width
+            )
             pygame.draw.rect(
-                screen, v.color,
-                (
-                    v.x - v.length // 2 + int(camera_offset_x),
-                    v.y - v.width // 2 + int(camera_offset_y),
-                    v.length,
-                    v.width
-                )
+                screen, v.color, temp_rect
             )
 
         # Окошко с текстом

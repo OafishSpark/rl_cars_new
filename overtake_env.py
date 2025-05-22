@@ -26,26 +26,26 @@ class OvertakeEnv(gym.Env):
         for _ in range(count):
             direction = np.random.choice([-1, 1])
             lane = 1 if direction > 0 else 0
-            speed = max_speed * 2
+            speed = max_speed_c * 2
 
             # Выбор типа NPC
             npc_type = np.random.choice([
                 Norman, Grandma, M_U_D_A_K,
                 Gambler, Marshrutka, Truck
-            ], p=[0.3, 0.2, 0.1, 0.05, 0.2, 0.15])
+            ], p=[0.4, 0.25, 0.1, 0.05, 0.1, 0.1])
 
             x_start = self.ego.x + np.random.choice([-1, 1]) * np.random.randint(
-                observation_radius - gen_radius,
-                observation_radius + gen_radius
+                observation_radius // 2 - gen_radius,
+                observation_radius // 2 + gen_radius
             )
             vehicle = npc_type(x_start, lane, speed, direction)
             self.npc_vehicles.append(vehicle)
 
     def reset(self, seed=None, options=None):
         self.close()
-        super().reset(seed=seed)
-        self.ego = EgoVehicle()
-        self._generate_npc(6)
+        # super().reset(seed=seed)
+        # self.ego = EgoVehicle()
+        # self._generate_npc(6)
         return self._get_obs(), {}
 
     def _get_obs(self):
@@ -103,16 +103,21 @@ class OvertakeEnv(gym.Env):
                     self.ego.lane != v.lane):
                 overtake_bonus += 15.0
 
-        # удаляем неписей, которые за 500м до и после экрана
+        # удаляем неписей
         for v in self.npc_vehicles:
+            if v.if_collapsed:
+                self.npc_vehicles.remove(v)
+                del v
+                continue
             if abs(self.ego.x - v.x) > observation_radius:
                 self.npc_vehicles.remove(v)
                 del v
-                print('deleted')
+                # print('deleted')
 
         # с ненулевой вероятностью генерируем неписей
-        if np.random.random() > npc_proba:
+        if np.random.random() > npc_proba and (len(self.npc_vehicles) < 20):
             self._generate_npc(1)
+            # print("generated!")
 
         reward = progress_reward + speed_bonus + overtake_bonus + collision_penalty + lane_change_penalty
         done = collision_penalty < 0 or self.ego.x > road_length * 0.9
