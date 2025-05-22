@@ -43,9 +43,6 @@ class OvertakeEnv(gym.Env):
 
     def reset(self, seed=None, options=None):
         self.close()
-        # super().reset(seed=seed)
-        # self.ego = EgoVehicle()
-        # self._generate_npc(6)
         return self._get_obs(), {}
 
     def _get_obs(self):
