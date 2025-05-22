@@ -26,7 +26,7 @@ class OvertakeEnv(gym.Env):
         for _ in range(count):
             direction = np.random.choice([-1, 1])
             lane = 1 if direction > 0 else 0
-            speed = max_speed_c * 2
+            speed = max_speed * 2
 
             # Выбор типа NPC
             npc_type = np.random.choice([
@@ -50,7 +50,7 @@ class OvertakeEnv(gym.Env):
 
     def _get_obs(self):
         obs = [
-            self.ego.speed / self.ego.max_speed,
+            self.ego.speed / max_speed,
             self.ego.lane / (num_lanes - 1),
         ]
 
@@ -66,7 +66,7 @@ class OvertakeEnv(gym.Env):
             obs.extend([
                 (v.x - self.ego.x) / observation_radius,
                 (v.y - self.ego.y) / road_width,
-                v.speed / self.ego.max_speed
+                v.speed / max_speed
             ])
 
         while len(obs) < self.observation_space.shape[0]:
@@ -85,7 +85,7 @@ class OvertakeEnv(gym.Env):
 
         # награды
         progress_reward = 0.5 * (self.ego.x - prev_x) / pix_per_metr
-        speed_bonus = 0.1 * (self.ego.speed / self.ego.max_speed)
+        speed_bonus = 0.1 * (self.ego.speed / max_speed)
         collision_penalty = 0
         if any(
                 self.ego.rect.colliderect(v.rect)
@@ -108,11 +108,12 @@ class OvertakeEnv(gym.Env):
             if v.if_collapsed:
                 self.npc_vehicles.remove(v)
                 del v
+                print('deleted')
                 continue
             if abs(self.ego.x - v.x) > observation_radius:
                 self.npc_vehicles.remove(v)
                 del v
-                # print('deleted')
+                print('deleted')
 
         # с ненулевой вероятностью генерируем неписей
         if np.random.random() > npc_proba and (len(self.npc_vehicles) < 20):
