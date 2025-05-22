@@ -32,11 +32,11 @@ class OvertakeEnv(gym.Env):
             npc_type = np.random.choice([
                 Norman, Grandma, M_U_D_A_K,
                 Gambler, Marshrutka, Truck
-            ], p=[0.4, 0.25, 0.1, 0.05, 0.1, 0.1])
+            ], p=[0.4, 0.3, 0.1, 0.1, 0.05, 0.05])
 
             x_start = self.ego.x + np.random.choice([-1, 1]) * np.random.randint(
-                observation_radius // 2 - gen_radius,
-                observation_radius // 2 + gen_radius
+                observation_radius // 4 * 3 - gen_radius,
+                observation_radius // 4 * 3 + gen_radius
             )
             vehicle = npc_type(x_start, lane, speed, direction)
             self.npc_vehicles.append(vehicle)
